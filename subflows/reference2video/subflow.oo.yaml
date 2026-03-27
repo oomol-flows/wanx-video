@@ -1,0 +1,218 @@
+inputs_def:
+  - handle: prompt
+    description: "%wanx-r2v-video-api-prompt%"
+    json_schema:
+      type: string
+      maxLength: 1500
+    nullable: false
+    executor_name: nodejs
+  - handle: references
+    description: "%wanx-r2v-video-api-references%"
+    json_schema:
+      type: array
+      items:
+        type: string
+        ui:widget: file
+      minItems: 1
+      maxItems: 5
+    nullable: false
+    executor_name: nodejs
+  - group: Advanced Options
+    collapsed: true
+  - handle: model
+    description: "%wanx-r2v-video-api-model%"
+    json_schema:
+      enum:
+        - wan2.6-r2v-flash
+        - wan2.6-r2v
+      ui:options:
+        labels:
+          - Wan2.6 R2V Flash (Fast)
+          - Wan2.6 R2V (Quality)
+    value: wan2.6-r2v-flash
+    nullable: true
+    executor_name: nodejs
+  - handle: negative_prompt
+    json_schema:
+      type: string
+      maxLength: 500
+    nullable: true
+    description: "%wanx-r2v-video-api-negative-prompt%"
+    value:
+    executor_name: nodejs
+  - handle: size
+    json_schema:
+      enum:
+        - 1280*720
+        - 720*1280
+        - 960*960
+        - 1088*832
+        - 832*1088
+        - 1920*1080
+        - 1080*1920
+        - 1440*1440
+        - 1632*1248
+        - 1248*1632
+      ui:options:
+        labels:
+          - 1280x720 (16:9)
+          - 720x1280 (9:16)
+          - 960x960 (1:1)
+          - 1088x832 (4:3)
+          - 832x1088 (3:4)
+          - 1920x1080 (16:9 FHD)
+          - 1080x1920 (9:16 FHD)
+          - 1440x1440 (1:1)
+          - 1632x1248 (4:3)
+          - 1248x1632 (3:4)
+    nullable: true
+    description: "%wanx-r2v-video-api-size%"
+    value: 1920*1080
+    executor_name: nodejs
+  - handle: duration
+    json_schema:
+      type: integer
+      minimum: 2
+      maximum: 10
+    nullable: true
+    description: "%wanx-r2v-video-api-duration%"
+    value: 5
+    executor_name: nodejs
+  - handle: shot_type
+    json_schema:
+      enum:
+        - single
+        - multi
+      ui:options:
+        labels:
+          - Single Shot
+          - Multi Shot
+    nullable: true
+    description: "%wanx-r2v-video-api-shot-type%"
+    value:
+    executor_name: nodejs
+  - handle: audio
+    json_schema:
+      type: boolean
+    nullable: true
+    description: "%wanx-r2v-video-api-audio%"
+    value: true
+    executor_name: nodejs
+  - handle: watermark
+    json_schema:
+      type: boolean
+    nullable: true
+    description: "%wanx-r2v-video-api-watermark%"
+    value: false
+    executor_name: nodejs
+  - handle: seed
+    json_schema:
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+    nullable: true
+    description: "%wanx-r2v-video-api-seed%"
+    value:
+    executor_name: nodejs
+outputs_def:
+  - handle: output
+    json_schema:
+      {}
+nodes:
+  - node_id: wanx-r2v-video-api#1
+    title: "参考生视频 API #1"
+    inputs_from:
+      - handle: prompt
+        from_flow:
+          - input_handle: prompt
+      - handle: reference_urls
+        from_flow:
+          []
+        from_node:
+          - node_id: map#1
+            output_handle: array
+      - handle: model
+        value: wan2.6-r2v-flash
+        from_flow:
+          - input_handle: model
+      - handle: negative_prompt
+        value: null
+        from_flow:
+          - input_handle: negative_prompt
+      - handle: size
+        value: 1920*1080
+        from_flow:
+          - input_handle: size
+      - handle: duration
+        value: 5
+        from_flow:
+          - input_handle: duration
+      - handle: shot_type
+        value: null
+        from_flow:
+          - input_handle: shot_type
+      - handle: audio
+        value: true
+        from_flow:
+          - input_handle: audio
+      - handle: watermark
+        value: false
+        from_flow:
+          - input_handle: watermark
+      - handle: seed
+        value: null
+        from_flow:
+          - input_handle: seed
+    task: self::wanx-r2v-video-api
+  - node_id: map#1
+    title: "映射 #1"
+    inputs_from:
+      - handle: array
+        from_flow:
+          - input_handle: references
+    subflow: array::map
+    slots:
+      - slot_node_id: +slot#2
+        slotflow: self::+slotflow#1
+  - node_id: file-downloader#1
+    title: "下载文件 #1"
+    inputs_from:
+      - handle: url
+        from_node:
+          - node_id: wanx-r2v-video-api#1
+            output_handle: video_url
+      - handle: saved_path
+        value: null
+      - handle: if_existing
+        value: override
+      - handle: threads_count
+        value: 1
+      - handle: headers
+        value:
+          {}
+      - handle: cookies
+        value:
+          {}
+      - handle: window_width
+        value: 7
+      - handle: failure_ladder
+        value:
+          - 5
+      - handle: min_segment_length
+        value: 1048576
+      - handle: once_fetch_size
+        value: 16384
+      - handle: timeout
+        value: 30
+      - handle: retry_times
+        value: 0
+      - handle: retry_sleep
+        value: 0
+    subflow: downloader::file-downloader
+title: "%reference2video-title%"
+outputs_from:
+  - handle: output
+    from_node:
+      - node_id: file-downloader#1
+        output_handle: saved_path
+description: "%reference2video-description%"

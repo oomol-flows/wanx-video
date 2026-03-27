@@ -1,0 +1,71 @@
+{
+  "nodes": {
+    "wanx-r2v-video-api#1": {
+      "rfNode": {
+        "position": {
+          "x": 972,
+          "y": 0
+        }
+      }
+    },
+    "map#1": {
+      "rfNode": {
+        "position": {
+          "x": 483.45182012847965,
+          "y": -227.5
+        }
+      }
+    },
+    "file-downloader#1": {
+      "rfNode": {
+        "position": {
+          "x": 1458,
+          "y": 135
+        }
+      },
+      "sections": {
+        "inputs": {
+          "groupCollapsed": {
+            "Strategy": true,
+            "Connection": true
+          }
+        },
+        "outputs": {
+          "groupCollapsed": {
+            "Events": true
+          }
+        }
+      }
+    }
+  },
+  "pseudoNodes": {
+    "input": {
+      "rfNode": {
+        "position": {
+          "x": 0,
+          "y": 112.5
+        }
+      },
+      "sections": {
+        "subflowInput": {
+          "collapsed": {
+            "references": {
+              "[]": true
+            }
+          },
+          "groupCollapsed": {
+            "Advanced Options": true
+          }
+        }
+      }
+    },
+    "output": {
+      "rfNode": {
+        "position": {
+          "x": 1944,
+          "y": 247.5
+        }
+      }
+    }
+  }
+}

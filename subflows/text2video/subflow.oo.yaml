@@ -1,0 +1,175 @@
+inputs_def:
+  - handle: prompt
+    json_schema:
+      type: string
+      maxLength: 1500
+    nullable: false
+    description: "%wanx-t2v-video-api-prompt%"
+    executor_name: nodejs
+  - group: Advanced Options
+    collapsed: true
+  - handle: negative_prompt
+    json_schema:
+      type: string
+      maxLength: 500
+    nullable: true
+    description: "%wanx-t2v-video-api-negative-prompt%"
+    value:
+    executor_name: nodejs
+  - handle: size
+    json_schema:
+      enum:
+        - 1280*720
+        - 720*1280
+        - 960*960
+        - 1088*832
+        - 832*1088
+        - 1920*1080
+        - 1080*1920
+        - 1440*1440
+        - 1632*1248
+        - 1248*1632
+      ui:options:
+        labels:
+          - 1280x720 (16:9)
+          - 720x1280 (9:16)
+          - 960x960 (1:1)
+          - 1088x832 (4:3)
+          - 832x1088 (3:4)
+          - 1920x1080 (16:9 FHD)
+          - 1080x1920 (9:16 FHD)
+          - 1440x1440 (1:1)
+          - 1632x1248 (4:3)
+          - 1248x1632 (3:4)
+    nullable: true
+    description: "%wanx-t2v-video-api-size%"
+    value: 1920*1080
+    executor_name: nodejs
+  - handle: duration
+    json_schema:
+      type: integer
+      minimum: 2
+      maximum: 15
+    nullable: true
+    description: "%wanx-t2v-video-api-duration%"
+    value: 5
+    executor_name: nodejs
+  - handle: prompt_extend
+    json_schema:
+      type: boolean
+    nullable: true
+    description: "%wanx-t2v-video-api-prompt-extend%"
+    value: true
+    executor_name: nodejs
+  - handle: shot_type
+    json_schema:
+      enum:
+        - single
+        - multi
+      ui:options:
+        labels:
+          - Single Shot
+          - Multi Shot
+    nullable: true
+    description: "%wanx-t2v-video-api-shot-type%"
+    value:
+    executor_name: nodejs
+  - handle: watermark
+    json_schema:
+      type: boolean
+    nullable: true
+    description: "%wanx-t2v-video-api-watermark%"
+    value: false
+    executor_name: nodejs
+  - handle: seed
+    json_schema:
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+    nullable: true
+    description: "%wanx-t2v-video-api-seed%"
+    value:
+    executor_name: nodejs
+outputs_def:
+  - handle: video
+    json_schema:
+      type: string
+      ui:widget: file
+nodes:
+  - node_id: wanx-t2v-video-api#1
+    title: "文生视频 API #1"
+    inputs_from:
+      - handle: prompt
+        from_flow:
+          - input_handle: prompt
+      - handle: negative_prompt
+        value: null
+        from_flow:
+          - input_handle: negative_prompt
+      - handle: size
+        value: 1920*1080
+        from_flow:
+          - input_handle: size
+      - handle: duration
+        value: 5
+        from_flow:
+          - input_handle: duration
+      - handle: prompt_extend
+        value: true
+        from_flow:
+          - input_handle: prompt_extend
+      - handle: shot_type
+        value: null
+        from_flow:
+          - input_handle: shot_type
+      - handle: watermark
+        value: false
+        from_flow:
+          - input_handle: watermark
+      - handle: seed
+        value: null
+        from_flow:
+          - input_handle: seed
+    task: self::wanx-t2v-video-api
+  - node_id: file-downloader#1
+    title: "下载文件 #1"
+    inputs_from:
+      - handle: url
+        from_node:
+          - node_id: wanx-t2v-video-api#1
+            output_handle: video_url
+      - handle: saved_path
+        value: null
+      - handle: if_existing
+        value: override
+      - handle: threads_count
+        value: 1
+      - handle: headers
+        value:
+          {}
+      - handle: cookies
+        value:
+          {}
+      - handle: window_width
+        value: 7
+      - handle: failure_ladder
+        value:
+          - 5
+      - handle: min_segment_length
+        value: 1048576
+      - handle: once_fetch_size
+        value: 16384
+      - handle: timeout
+        value: 30
+      - handle: retry_times
+        value: 0
+      - handle: retry_sleep
+        value: 0
+    subflow: downloader::file-downloader
+title: "%text2video-title%"
+outputs_from:
+  - handle: video
+    from_node:
+      - node_id: file-downloader#1
+        output_handle: saved_path
+description: "%text2video-description%"

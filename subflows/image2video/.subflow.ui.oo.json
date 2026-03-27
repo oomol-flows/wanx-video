@@ -1,0 +1,82 @@
+{
+  "nodes": {
+    "wanx-i2v-video-api#1": {
+      "rfNode": {
+        "position": {
+          "x": 1458,
+          "y": 0
+        }
+      }
+    },
+    "upload-to-cloud#1": {
+      "rfNode": {
+        "position": {
+          "x": 749.1290512161078,
+          "y": -87.33279678978539
+        }
+      }
+    },
+    "file-downloader#1": {
+      "rfNode": {
+        "position": {
+          "x": 1944,
+          "y": 162
+        }
+      },
+      "sections": {
+        "inputs": {
+          "groupCollapsed": {
+            "Strategy": true,
+            "Connection": true
+          }
+        },
+        "outputs": {
+          "groupCollapsed": {
+            "Events": true
+          }
+        }
+      }
+    },
+    "+condition#1": {
+      "rfNode": {
+        "position": {
+          "x": 486,
+          "y": 358
+        }
+      }
+    },
+    "upload-to-cloud#2": {
+      "rfNode": {
+        "position": {
+          "x": 972,
+          "y": 461
+        }
+      }
+    }
+  },
+  "pseudoNodes": {
+    "input": {
+      "rfNode": {
+        "position": {
+          "x": 0,
+          "y": 102.5
+        }
+      },
+      "sections": {
+        "subflowInput": {
+          "groupCollapsed": {
+            "Advanced Options": true
+          }
+        }
+      }
+    },
+    "output": {
+      "rfNode": {
+        "position": {
+          "x": 2430,
+          "y": 274.5
+        }
+      }
+    }
+  }
+}

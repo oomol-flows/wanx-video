@@ -1,6 +1,26 @@
-version: 0.0.1
+name: wanx-video
+version: 0.1.0
+displayName: "%display-name%"
+description: "%description%"
+icon: ./icon.png
 scripts:
   bootstrap: |
     npm install
     poetry install --no-root
-icon: ./icon.png
+ui:
+  blocks:
+    - text2video
+    - wanx-t2v-video-api
+    - image2video
+    - wanx-i2v-video-api
+    - keyframe2video
+    - wanx-kf2v-video-api
+    - reference2video
+    - wanx-r2v-video-api
+releaseNotes: First release with 4 video generation modes (text-to-video,
+  image-to-video, keyframe-to-video, reference-to-video)
+repository: https://github.com/oomol-flows/wanx-video
+dependencies:
+  downloader: 0.1.5
+  upload-to-cloud: 0.0.5
+  array: 0.1.9

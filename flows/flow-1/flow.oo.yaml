@@ -1,1 +1,24 @@
-nodes: []
+title: "Test Wanx Video API Blocks"
+description: "Test flow for all 4 wanx video generation blocks"
+nodes:
+  # 1. 文生视频 (Text to Video)
+  - node_id: text2video#1
+    title: "文生视频 #1"
+    inputs_from:
+      - handle: prompt
+        value: 猫猫
+      - handle: negative_prompt
+        value: null
+      - handle: size
+        value: 1920*1080
+      - handle: duration
+        value: 5
+      - handle: prompt_extend
+        value: true
+      - handle: shot_type
+        value: null
+      - handle: watermark
+        value: false
+      - handle: seed
+        value: null
+    subflow: self::text2video

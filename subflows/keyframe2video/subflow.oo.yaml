@@ -1,0 +1,231 @@
+inputs_def:
+  - handle: first_frame
+    description: "%first-frame-image%"
+    json_schema:
+      type: string
+      ui:widget: file
+    nullable: false
+    executor_name: nodejs
+  - group: Advanced Options
+    collapsed: true
+  - handle: model
+    description: "%wanx-kf2v-video-api-model%"
+    json_schema:
+      enum:
+        - wan2.2-kf2v-flash
+        - wanx2.1-kf2v-plus
+      ui:options:
+        labels:
+          - Wan2.2 KF2V Flash (Fast)
+          - Wanx2.1 KF2V Plus (Quality)
+    value: wan2.2-kf2v-flash
+    nullable: true
+    executor_name: nodejs
+  - handle: last_frame
+    description: "%last-frame-image%"
+    json_schema:
+      type: string
+      ui:widget: file
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: prompt
+    description: "%wanx-kf2v-video-api-prompt%"
+    json_schema:
+      type: string
+      maxLength: 800
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: template
+    description: "%wanx-kf2v-video-api-template%"
+    json_schema:
+      type: string
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: negative_prompt
+    description: "%wanx-kf2v-video-api-negative-prompt%"
+    json_schema:
+      type: string
+      maxLength: 500
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: resolution
+    description: "%wanx-kf2v-video-api-resolution%"
+    json_schema:
+      enum:
+        - 480P
+        - 720P
+        - 1080P
+      ui:options:
+        labels:
+          - 480P
+          - 720P (HD)
+          - 1080P (Full HD)
+    value: 720P
+    nullable: true
+    executor_name: nodejs
+  - handle: prompt_extend
+    description: "%wanx-kf2v-video-api-prompt-extend%"
+    json_schema:
+      type: boolean
+    value: true
+    nullable: true
+    executor_name: nodejs
+  - handle: watermark
+    description: "%wanx-kf2v-video-api-watermark%"
+    json_schema:
+      type: boolean
+    value: false
+    nullable: true
+    executor_name: nodejs
+  - handle: seed
+    description: "%wanx-kf2v-video-api-seed%"
+    json_schema:
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+    value:
+    nullable: true
+    executor_name: nodejs
+outputs_def:
+  - handle: video
+    json_schema:
+      type: string
+    nullable: false
+    description: "%generated-video-file%"
+    executor_name: nodejs
+nodes:
+  - node_id: wanx-kf2v-video-api#1
+    title: "关键帧生视频 API #1"
+    inputs_from:
+      - handle: first_frame_url
+        from_flow:
+          []
+        from_node:
+          - node_id: upload-to-cloud#1
+            output_handle: remote_url
+      - handle: model
+        value: wan2.2-kf2v-flash
+        from_flow:
+          - input_handle: model
+      - handle: last_frame_url
+        value: null
+        from_flow:
+          []
+        from_node:
+          - node_id: +condition#1
+            output_handle: default
+          - node_id: upload-to-cloud#2
+            output_handle: remote_url
+      - handle: prompt
+        value: null
+        from_flow:
+          - input_handle: prompt
+      - handle: template
+        value: null
+        from_flow:
+          - input_handle: template
+      - handle: negative_prompt
+        value: null
+        from_flow:
+          - input_handle: negative_prompt
+      - handle: resolution
+        value: 720P
+        from_flow:
+          - input_handle: resolution
+      - handle: prompt_extend
+        value: true
+        from_flow:
+          - input_handle: prompt_extend
+      - handle: watermark
+        value: false
+        from_flow:
+          - input_handle: watermark
+      - handle: seed
+        value: null
+        from_flow:
+          - input_handle: seed
+    task: self::wanx-kf2v-video-api
+  - node_id: upload-to-cloud#1
+    title: "上传文件到云端 #1"
+    inputs_from:
+      - handle: file
+        from_flow:
+          - input_handle: first_frame
+    task: upload-to-cloud::upload-to-cloud
+  - node_id: file-downloader#1
+    title: "下载文件 #1"
+    inputs_from:
+      - handle: url
+        from_node:
+          - node_id: wanx-kf2v-video-api#1
+            output_handle: video_url
+      - handle: saved_path
+        value: null
+      - handle: if_existing
+        value: override
+      - handle: threads_count
+        value: 1
+      - handle: headers
+        value:
+          {}
+      - handle: cookies
+        value:
+          {}
+      - handle: window_width
+        value: 7
+      - handle: failure_ladder
+        value:
+          - 5
+      - handle: min_segment_length
+        value: 1048576
+      - handle: once_fetch_size
+        value: 16384
+      - handle: timeout
+        value: 30
+      - handle: retry_times
+        value: 0
+      - handle: retry_sleep
+        value: 0
+    subflow: downloader::file-downloader
+  - node_id: +condition#1
+    title: "Condition #1"
+    conditions:
+      cases:
+        - handle: has_last_frame
+          expressions:
+            - input_handle: last_frame
+              operator: is not null
+      default:
+        handle: default
+    inputs_from:
+      - handle: last_frame
+        value:
+        from_flow:
+          - input_handle: last_frame
+    inputs_def:
+      - handle: last_frame
+        json_schema:
+          type: string
+          ui:widget: file
+        nullable: true
+        description: "%last-frame-image%"
+        executor_name: nodejs
+  - node_id: upload-to-cloud#2
+    title: "上传文件到云端 #2"
+    inputs_from:
+      - handle: file
+        from_node:
+          - node_id: +condition#1
+            output_handle: has_last_frame
+    task: upload-to-cloud::upload-to-cloud
+title: "%keyframe2video-title%"
+outputs_from:
+  - handle: video
+    from_node:
+      - node_id: file-downloader#1
+        output_handle: saved_path
+description: "%keyframe2video-description%"

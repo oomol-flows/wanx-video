@@ -1,0 +1,256 @@
+inputs_def:
+  - handle: image
+    description: "%first-frame-image%"
+    json_schema:
+      type: string
+      ui:widget: file
+    nullable: false
+    executor_name: nodejs
+  - handle: prompt
+    description: "%wanx-i2v-video-api-prompt%"
+    json_schema:
+      type: string
+      maxLength: 1500
+    nullable: false
+    executor_name: nodejs
+  - group: Advanced Options
+    collapsed: true
+  - handle: model
+    description: "%wanx-i2v-video-api-model%"
+    json_schema:
+      enum:
+        - wan2.6-i2v-flash
+        - wan2.6-i2v
+      ui:options:
+        labels:
+          - Wan2.6 I2V Flash (Fast)
+          - Wan2.6 I2V (Quality)
+    value: wan2.6-i2v-flash
+    nullable: true
+    executor_name: nodejs
+  - handle: negative_prompt
+    description: "%wanx-i2v-video-api-negative-prompt%"
+    json_schema:
+      type: string
+      maxLength: 500
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: duration
+    description: "%wanx-i2v-video-api-duration%"
+    json_schema:
+      type: integer
+      minimum: 2
+      maximum: 15
+    value: 5
+    nullable: true
+    executor_name: nodejs
+  - handle: resolution
+    description: "%wanx-i2v-video-api-resolution%"
+    json_schema:
+      enum:
+        - 720P
+        - 1080P
+      ui:options:
+        labels:
+          - 720P
+          - 1080P (Full HD)
+    value: 1080P
+    nullable: true
+    executor_name: nodejs
+  - handle: prompt_extend
+    description: "%wanx-i2v-video-api-prompt-extend%"
+    json_schema:
+      type: boolean
+    value: true
+    nullable: true
+    executor_name: nodejs
+  - handle: shot_type
+    description: "%wanx-i2v-video-api-shot-type%"
+    json_schema:
+      enum:
+        - single
+        - multi
+      ui:options:
+        labels:
+          - Single Shot
+          - Multi Shot
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: audio
+    description: "%wanx-i2v-video-api-audio%"
+    json_schema:
+      type: boolean
+    value: true
+    nullable: true
+    executor_name: nodejs
+  - handle: audio_file
+    description: "%wanx-i2v-video-api-audio-file%"
+    json_schema:
+      type: string
+      ui:widget: file
+    value:
+    nullable: true
+    executor_name: nodejs
+  - handle: watermark
+    description: "%wanx-i2v-video-api-watermark%"
+    json_schema:
+      type: boolean
+    value: false
+    nullable: true
+    executor_name: nodejs
+  - handle: seed
+    description: "%wanx-i2v-video-api-seed%"
+    json_schema:
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+    value:
+    nullable: true
+    executor_name: nodejs
+outputs_def:
+  - handle: video
+    description: "%generated-video-file%"
+    json_schema:
+      type: string
+      ui:widget: file
+nodes:
+  - node_id: wanx-i2v-video-api#1
+    title: "图生视频 API #1"
+    inputs_from:
+      - handle: image_url
+        from_flow:
+          []
+        from_node:
+          - node_id: upload-to-cloud#1
+            output_handle: remote_url
+      - handle: prompt
+        from_flow:
+          - input_handle: prompt
+      - handle: model
+        value: wan2.6-i2v-flash
+        from_flow:
+          - input_handle: model
+      - handle: negative_prompt
+        value: null
+        from_flow:
+          - input_handle: negative_prompt
+      - handle: duration
+        value: 5
+        from_flow:
+          - input_handle: duration
+      - handle: resolution
+        value: 1080P
+        from_flow:
+          - input_handle: resolution
+      - handle: prompt_extend
+        value: true
+        from_flow:
+          - input_handle: prompt_extend
+      - handle: shot_type
+        value: null
+        from_flow:
+          - input_handle: shot_type
+      - handle: audio
+        value: true
+        from_flow:
+          - input_handle: audio
+      - handle: audio_url
+        value: null
+        from_flow:
+          []
+        from_node:
+          - node_id: +condition#1
+            output_handle: default
+          - node_id: upload-to-cloud#2
+            output_handle: remote_url
+      - handle: watermark
+        value: false
+        from_flow:
+          - input_handle: watermark
+      - handle: seed
+        value: null
+        from_flow:
+          - input_handle: seed
+    task: self::wanx-i2v-video-api
+  - node_id: upload-to-cloud#1
+    title: "上传文件到云端 #1"
+    inputs_from:
+      - handle: file
+        from_flow:
+          - input_handle: image
+    task: upload-to-cloud::upload-to-cloud
+  - node_id: file-downloader#1
+    title: "下载文件 #1"
+    inputs_from:
+      - handle: url
+        from_node:
+          - node_id: wanx-i2v-video-api#1
+            output_handle: video_url
+      - handle: saved_path
+        value: null
+      - handle: if_existing
+        value: override
+      - handle: threads_count
+        value: 1
+      - handle: headers
+        value:
+          {}
+      - handle: cookies
+        value:
+          {}
+      - handle: window_width
+        value: 7
+      - handle: failure_ladder
+        value:
+          - 5
+      - handle: min_segment_length
+        value: 1048576
+      - handle: once_fetch_size
+        value: 16384
+      - handle: timeout
+        value: 30
+      - handle: retry_times
+        value: 0
+      - handle: retry_sleep
+        value: 0
+    subflow: downloader::file-downloader
+  - node_id: +condition#1
+    title: "Condition #1"
+    conditions:
+      cases:
+        - handle: case
+          expressions:
+            - input_handle: audio_file
+              operator: is not null
+      default:
+        handle: default
+    inputs_from:
+      - handle: audio_file
+        value:
+        from_flow:
+          - input_handle: audio_file
+    inputs_def:
+      - handle: audio_file
+        json_schema:
+          type: string
+          ui:widget: file
+        nullable: true
+        description: "%wanx-i2v-video-api-audio-file%"
+        executor_name: nodejs
+  - node_id: upload-to-cloud#2
+    title: "上传文件到云端 #2"
+    inputs_from:
+      - handle: file
+        from_node:
+          - node_id: +condition#1
+            output_handle: case
+    task: upload-to-cloud::upload-to-cloud
+title: "%image2video-title%"
+description: "%image2video-description%"
+outputs_from:
+  - handle: video
+    from_node:
+      - node_id: file-downloader#1
+        output_handle: saved_path

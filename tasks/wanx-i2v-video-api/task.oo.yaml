@@ -1,0 +1,151 @@
+inputs_def:
+  - handle: image_url
+    description: "%wanx-i2v-video-api-image-url%"
+    json_schema:
+      type: string
+    nullable: false
+
+  - handle: prompt
+    description: "%wanx-i2v-video-api-prompt%"
+    json_schema:
+      type: string
+      maxLength: 1500
+    nullable: false
+
+  - group: Advanced Options
+    collapsed: true
+
+  - handle: model
+    description: "%wanx-i2v-video-api-model%"
+    json_schema:
+      enum:
+        - wan2.6-i2v-flash
+        - wan2.6-i2v
+      ui:options:
+        labels:
+          - Wan2.6 I2V Flash (Fast)
+          - Wan2.6 I2V (Quality)
+    value: wan2.6-i2v-flash
+    nullable: true
+
+  - handle: negative_prompt
+    description: "%wanx-i2v-video-api-negative-prompt%"
+    json_schema:
+      type: string
+      maxLength: 500
+    value:
+    nullable: true
+
+  - handle: duration
+    description: "%wanx-i2v-video-api-duration%"
+    json_schema:
+      type: integer
+      minimum: 2
+      maximum: 15
+    value: 5
+    nullable: true
+
+  - handle: resolution
+    description: "%wanx-i2v-video-api-resolution%"
+    json_schema:
+      enum:
+        - 720P
+        - 1080P
+      ui:options:
+        labels:
+          - 720P
+          - 1080P (Full HD)
+    value: 1080P
+    nullable: true
+
+  - handle: prompt_extend
+    description: "%wanx-i2v-video-api-prompt-extend%"
+    json_schema:
+      type: boolean
+    value: true
+    nullable: true
+
+  - handle: shot_type
+    description: "%wanx-i2v-video-api-shot-type%"
+    json_schema:
+      enum:
+        - single
+        - multi
+      ui:options:
+        labels:
+          - Single Shot
+          - Multi Shot
+    value:
+    nullable: true
+
+  - handle: audio
+    description: "%wanx-i2v-video-api-audio%"
+    json_schema:
+      type: boolean
+    value: true
+    nullable: true
+
+  - handle: audio_url
+    description: "%wanx-i2v-video-api-audio-url%"
+    json_schema:
+      type: string
+      format: uri
+    value:
+    nullable: true
+
+  - handle: watermark
+    description: "%wanx-i2v-video-api-watermark%"
+    json_schema:
+      type: boolean
+    value: false
+    nullable: true
+
+  - handle: seed
+    description: "%wanx-i2v-video-api-seed%"
+    json_schema:
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+    value:
+    nullable: true
+
+outputs_def:
+  - handle: video_url
+    description: "%wanx-i2v-video-api-video-url%"
+    json_schema:
+      type: string
+    nullable: false
+
+  - handle: task_id
+    description: "%wanx-i2v-video-api-task-id%"
+    json_schema:
+      type: string
+    nullable: false
+
+  - handle: resolution
+    description: "%wanx-i2v-video-api-resolution-output%"
+    json_schema:
+      type: string
+    nullable: false
+
+  - handle: audio
+    description: "%wanx-i2v-video-api-audio-output%"
+    json_schema:
+      type: boolean
+    nullable: false
+
+  - handle: output_video_duration
+    description: "%wanx-i2v-video-api-output-video-duration%"
+    json_schema:
+      type: number
+    nullable: false
+
+executor:
+  name: nodejs
+  options:
+    entry: index.ts
+
+title: "%wanx-i2v-video-api-title%"
+icon: ":carbon:video:"
+description: "%wanx-i2v-video-api-description%"
+private: true

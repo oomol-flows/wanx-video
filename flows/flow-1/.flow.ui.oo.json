@@ -1,0 +1,19 @@
+{
+  "nodes": {
+    "text2video#1": {
+      "rfNode": {
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "sections": {
+        "inputs": {
+          "groupCollapsed": {
+            "Advanced Options": true
+          }
+        }
+      }
+    }
+  }
+}
